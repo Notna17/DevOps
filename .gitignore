@@ -1,0 +1,5 @@
+## Purpose: Ignore local helper/reference files and generated caches.
+help.md
+info.md
+__pycache__/
+*.pyc

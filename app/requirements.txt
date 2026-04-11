@@ -1,0 +1,4 @@
+# Purpose: Define minimal Python dependencies for mywebapp application and migrations.
+Flask==3.0.3
+psycopg2-binary==2.9.9
+tomli==2.0.1

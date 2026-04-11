@@ -1,0 +1,12 @@
+# Purpose: systemd socket unit for on-demand activation of mywebapp on localhost:8080.
+
+[Unit]
+Description=mywebapp socket activation listener
+PartOf=mywebapp.service
+
+[Socket]
+ListenStream=127.0.0.1:8080
+NoDelay=true
+
+[Install]
+WantedBy=sockets.target
