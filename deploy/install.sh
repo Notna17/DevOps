@@ -52,8 +52,17 @@ else
     echo "Created system user mywebapp."
 fi
 
+if id app >/dev/null 2>&1; then
+    echo "System user app already exists."
+else
+    useradd --system --home /nonexistent --shell /usr/sbin/nologin app
+    echo "Created system user app."
+fi
+
+# Regular lab users with forced password change on first login.
 ensure_regular_user student yes
 ensure_regular_user teacher yes
+# Operator is intentionally non-admin; sudo access is limited via /etc/sudoers.d/operator.
 ensure_regular_user operator no
 gpasswd -d operator sudo >/dev/null 2>&1 || true
 
@@ -124,8 +133,8 @@ user = "mywebapp"
 password = "mywebapp_password"
 EOF
 
-log_section "8) Set ownership to mywebapp"
-chown -R mywebapp:mywebapp "${APP_DIR}" "${CONFIG_DIR}"
+log_section "8) Set ownership to app"
+chown -R app:app "${APP_DIR}" "${CONFIG_DIR}"
 
 log_section "9) Install systemd unit files"
 cp -a "${REPO_ROOT}/deploy/mywebapp.service" /etc/systemd/system/mywebapp.service
@@ -139,7 +148,7 @@ systemctl enable --now mywebapp.socket
 systemctl enable --now mywebapp.service
 
 log_section "12) Run database migration"
-sudo -u mywebapp "${APP_DIR}/venv/bin/python" "${APP_DIR}/app/migrate.py"
+sudo -u app "${APP_DIR}/venv/bin/python" "${APP_DIR}/app/migrate.py"
 
 log_section "13) Install nginx site config"
 cp -a "${REPO_ROOT}/deploy/nginx-mywebapp.conf" /etc/nginx/sites-available/mywebapp
@@ -154,6 +163,7 @@ systemctl enable --now nginx
 systemctl reload nginx
 
 log_section "16) Lock default ubuntu user if present"
+# Lock default cloud user after provisioning so only managed lab users can login.
 usermod -L ubuntu || true
 
 log_section "17) Create gradebook file"

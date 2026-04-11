@@ -244,11 +244,24 @@ ssh ubuntu@<VM_IP>
 
 ### Clone and deploy
 
+Automation entrypoint (single command script): `deploy/install.sh`.
+
 ```bash
 git clone <your-repo-url>
 cd DevOps
 sudo bash deploy/install.sh
 ```
+
+What `deploy/install.sh` does:
+
+- installs required packages (`python3`, `python3-pip`, `python3-venv`, `nginx`, `postgresql`, `git`)
+- creates users: `student`, `teacher`, `operator`, `mywebapp`, `app`
+- creates PostgreSQL role/database and local-only DB access
+- installs systemd units (`mywebapp.service`, `mywebapp.socket`)
+- runs migrations and starts service
+- configures nginx reverse proxy
+- creates `/home/student/gradebook` with value `5`
+- locks default `ubuntu` user
 
 ### systemd mode switching
 
@@ -336,6 +349,21 @@ Expected:
 - `sudo systemctl status mywebapp` works
 - `sudo systemctl restart mywebapp` works
 - `sudo apt update` is denied
+
+Additional deployment verification:
+
+```bash
+sudo systemctl status mywebapp.socket --no-pager
+sudo systemctl status mywebapp.service --no-pager
+sudo systemctl status nginx --no-pager
+cat /home/student/gradebook
+```
+
+Expected:
+
+- both `mywebapp.socket` and `mywebapp.service` are active (or service active after first request)
+- nginx is active
+- `gradebook` prints exactly `5`
 
 ## 8. Config File Format (`/etc/mywebapp/config.toml`)
 

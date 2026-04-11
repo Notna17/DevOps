@@ -7,8 +7,8 @@ Requires=postgresql.service
 
 [Service]
 Type=simple
-User=mywebapp
-Group=mywebapp
+User=app
+Group=app
 WorkingDirectory=/opt/mywebapp/app
 Environment=PYTHONUNBUFFERED=1
 ExecStartPre=/opt/mywebapp/venv/bin/python /opt/mywebapp/app/migrate.py
