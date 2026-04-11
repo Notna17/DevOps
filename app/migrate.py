@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# Purpose: Apply idempotent PostgreSQL schema migrations for mywebapp inventory data.
-
 """Database migration script for mywebapp."""
 
 from __future__ import annotations

@@ -1,5 +1,3 @@
-# Purpose: systemd service unit for running mywebapp with optional socket activation.
-
 [Unit]
 Description=mywebapp Flask inventory service
 After=network.target postgresql.service

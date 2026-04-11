@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# Purpose: Run mywebapp Flask service with inventory endpoints, health checks, and TOML config.
-
 """Main Flask application for the mywebapp inventory service."""
 
 from __future__ import annotations

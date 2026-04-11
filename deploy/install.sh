@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Purpose: Fully automate installation and deployment of mywebapp on Ubuntu 22.04.
 
 set -euo pipefail
 
