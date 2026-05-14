@@ -1,0 +1,18 @@
+[Unit]
+Description=mywebapp Flask inventory service
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=app
+Group=app
+WorkingDirectory=/opt/mywebapp/app
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/opt/mywebapp/venv/bin/python /opt/mywebapp/app/migrate.py
+ExecStart=/opt/mywebapp/venv/bin/python /opt/mywebapp/app/app.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
