@@ -265,6 +265,15 @@ def create_app(config: AppConfig) -> Flask:
     return app
 
 
+def build_wsgi_app() -> Flask:
+    """Create WSGI app for gunicorn by loading runtime config."""
+
+    return create_app(load_config())
+
+
+app = build_wsgi_app()
+
+
 def run_with_optional_socket_activation(app: Flask, config: AppConfig) -> None:
     """Start WSGI server on socket-activated FD when available, else bind host/port."""
 

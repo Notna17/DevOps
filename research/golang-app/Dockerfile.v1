@@ -1,0 +1,15 @@
+# v1: naive, entire Go SDK included in final image
+# Base image includes full Go toolchain.
+FROM golang:1.21-bookworm
+
+# Set working directory for the app.
+WORKDIR /app
+
+# Copy all source files first.
+COPY . /app
+
+# Build the application inside the same image.
+RUN go build -o app .
+
+# Run the compiled binary.
+ENTRYPOINT ["/app/app"]

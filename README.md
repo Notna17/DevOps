@@ -108,7 +108,76 @@ python app/app.py
 
 The app serves on `127.0.0.1:8080` (or via systemd socket activation when deployed).
 
-## 5. API Documentation
+## 5. Running with Docker Compose
+
+### Prerequisites
+
+- Docker >= 24.0
+- Docker Compose v2 (plugin)
+
+### Clone the repo
+
+```bash
+git clone <your-repo-url>
+cd DevOps
+```
+
+### Start the stack
+
+```bash
+docker compose up -d --build
+```
+
+### Check status and logs
+
+```bash
+docker compose ps
+docker compose logs -f
+```
+
+### Test the running system
+
+```bash
+# Health checks
+curl http://localhost/health/alive
+curl http://localhost/
+curl http://localhost/items
+curl -X POST http://localhost/items \
+	-H "Content-Type: application/json" \
+	-d '{"name": "Laptop", "quantity": 5}'
+curl http://localhost/items/1
+curl -H "Accept: text/html" http://localhost/items
+```
+
+### Stop and clean up
+
+```bash
+docker compose down
+docker compose down -v
+```
+
+### Architecture diagram
+
+```
+HOST
+ └─ port 80
+		 └─ [frontend network]
+				 └─ nginx
+						 └─ [backend network] (internal, no internet)
+								 ├─ app (Flask + gunicorn)
+								 └─ db  (PostgreSQL, named volume)
+```
+
+### Data persistence
+
+The `postgres_data` volume persists database state across restarts. Only `docker compose down -v` removes it.
+
+### Base image choice
+
+The app image uses `python:3.11-slim` instead of Alpine because many Python packages rely on glibc-based
+prebuilt wheels; Debian slim avoids musl-related build issues and reduces the need for compile toolchains.
+
+## 6. API Documentation
 
 ### Content Negotiation Rules
 
@@ -218,7 +287,7 @@ The app serves on `127.0.0.1:8080` (or via systemd socket activation when deploy
 </html>
 ```
 
-## 6. Deployment Documentation
+## 7. Deployment Documentation
 
 ### Base VM image
 
@@ -286,7 +355,7 @@ sudo systemctl enable --now mywebapp.socket
 sudo systemctl restart mywebapp.service
 ```
 
-## 7. Testing Instructions (Exact curl commands)
+## 8. Testing Instructions (Exact curl commands)
 
 `GET /health/alive`:
 
@@ -365,7 +434,7 @@ Expected:
 - nginx is active
 - `gradebook` prints exactly `5`
 
-## 8. Config File Format (`/etc/mywebapp/config.toml`)
+## 9. Config File Format (`/etc/mywebapp/config.toml`)
 
 TOML was chosen because it is human-readable, strict enough to reduce syntax mistakes, and maps naturally to structured sections (`[server]`, `[database]`) without external parser complexity.
 

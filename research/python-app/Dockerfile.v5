@@ -1,0 +1,16 @@
+# v5: debian slim base with numpy
+# Base image provides glibc with a smaller footprint than full Debian.
+FROM python:3.11-slim
+
+# Set working directory for the app.
+WORKDIR /app
+
+# Copy dependency manifests first for cache reuse.
+COPY requirements.txt /app/requirements.txt
+COPY requirements.lock /app/requirements.lock
+
+# Install pinned dependencies including numpy.
+RUN pip install --no-cache-dir -r /app/requirements.lock
+
+# Copy application source code last.
+COPY . /app
