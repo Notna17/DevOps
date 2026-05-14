@@ -1,6 +1,4 @@
-# Docker Compose stack for Lab 2 (Flask + PostgreSQL + Nginx).
 services:
-  # PostgreSQL database with persistent storage.
   db:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -18,7 +16,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Flask app with migrations and gunicorn.
   app:
     build:
       context: ./app
@@ -37,7 +34,6 @@ services:
       timeout: 5s
       retries: 3
 
-  # Reverse proxy exposed to the host.
   nginx:
     build:
       context: ./docker/nginx
@@ -52,7 +48,6 @@ services:
       app:
         condition: service_healthy
 
-# Separate networks for isolation.
 networks:
   frontend:
     driver: bridge
@@ -60,7 +55,6 @@ networks:
     driver: bridge
     internal: true
 
-# Persist database data across restarts.
 volumes:
   postgres_data:
     driver: local

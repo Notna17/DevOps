@@ -1,19 +1,12 @@
-# v3: alpine base, smaller image
-# Base image uses musl libc and a smaller footprint.
 FROM python:3.11-alpine
 
-# Install build tools for packages that need compilation.
 RUN apk add --no-cache gcc musl-dev
 
-# Set working directory for the app.
 WORKDIR /app
 
-# Copy dependency manifests first for cache reuse.
 COPY requirements.txt /app/requirements.txt
 COPY requirements.lock /app/requirements.lock
 
-# Install pinned dependencies from the lockfile.
 RUN pip install --no-cache-dir -r /app/requirements.lock
 
-# Copy application source code last.
 COPY . /app

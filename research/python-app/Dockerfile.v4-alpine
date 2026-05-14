@@ -1,19 +1,12 @@
-# v4: alpine base with numpy
-# Base image uses musl libc and a smaller footprint.
 FROM python:3.11-alpine
 
-# Install build tools and BLAS for numpy compilation.
 RUN apk add --no-cache build-base openblas-dev
 
-# Set working directory for the app.
 WORKDIR /app
 
-# Copy dependency manifests first for cache reuse.
 COPY requirements.txt /app/requirements.txt
 COPY requirements.lock /app/requirements.lock
 
-# Install pinned dependencies including numpy.
 RUN pip install --no-cache-dir -r /app/requirements.lock
 
-# Copy application source code last.
 COPY . /app
