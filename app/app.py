@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Main Flask application for the mywebapp inventory service."""
-
 from __future__ import annotations
 
 import os
