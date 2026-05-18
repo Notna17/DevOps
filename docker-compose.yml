@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mywebapp
+      POSTGRES_USER: mywebapp
+      POSTGRES_PASSWORD: mywebapp_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mywebapp -d mywebapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./docker/config/config.toml:/etc/mywebapp/config.toml:ro
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      app:
+        condition: service_healthy
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres_data:
+    driver: local

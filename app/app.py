@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Main Flask application for the mywebapp inventory service."""
-
 from __future__ import annotations
 
 import os
@@ -263,6 +261,15 @@ def create_app(config: AppConfig) -> Flask:
         return jsonify(item), 200
 
     return app
+
+
+def build_wsgi_app() -> Flask:
+    """Create WSGI app for gunicorn by loading runtime config."""
+
+    return create_app(load_config())
+
+
+app = build_wsgi_app()
 
 
 def run_with_optional_socket_activation(app: Flask, config: AppConfig) -> None:
