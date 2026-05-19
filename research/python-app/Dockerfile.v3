@@ -1,12 +1,18 @@
+# Base image with Alpine and Python.
 FROM python:3.11-alpine
 
+# Install build tools for native extensions.
 RUN apk add --no-cache gcc musl-dev
 
+# Set working directory.
 WORKDIR /app
 
+# Copy dependency manifests first for caching.
 COPY requirements.txt /app/requirements.txt
 COPY requirements.lock /app/requirements.lock
 
+# Install pinned dependencies.
 RUN pip install --no-cache-dir -r /app/requirements.lock
 
+# Copy application source.
 COPY . /app

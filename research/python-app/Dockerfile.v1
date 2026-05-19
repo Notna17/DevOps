@@ -1,7 +1,11 @@
+# Base image with full Debian and Python.
 FROM python:3.11-bookworm
 
+# Set working directory.
 WORKDIR /app
 
+# Copy all sources (cache-unfriendly).
 COPY . /app
 
+# Install dependencies after copying all files.
 RUN pip install --no-cache-dir -r requirements.txt
