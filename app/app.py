@@ -346,6 +346,8 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
             )
 
         if wants_html():
+            if created is None:
+                return jsonify({"error": "Item creation failed"}), 500
             return Response(item_to_html(created), status=201, mimetype="text/html")
         return jsonify(created), 201
 
