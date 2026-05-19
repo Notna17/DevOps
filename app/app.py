@@ -60,9 +60,13 @@ def load_config(path: str = CONFIG_PATH) -> AppConfig:
         with open(path, "rb") as config_file:
             raw = tomllib.load(config_file)
     except tomllib.TOMLDecodeError as exc:
-        raise RuntimeError(f"Invalid TOML in configuration file {path}: {exc}") from exc
+        raise RuntimeError(
+            f"Invalid TOML in configuration file {path}: {exc}"
+        ) from exc
     except OSError as exc:
-        raise RuntimeError(f"Could not read configuration file {path}: {exc}") from exc
+        raise RuntimeError(
+            f"Could not read configuration file {path}: {exc}"
+        ) from exc
 
     try:
         server = raw["server"]
@@ -82,7 +86,8 @@ def load_config(path: str = CONFIG_PATH) -> AppConfig:
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise RuntimeError(
-            "Invalid configuration structure. Required sections: [server] and [database] with all keys."
+            "Invalid configuration structure. Required sections: [server] and [database] "
+            "with all keys."
         ) from exc
 
 
@@ -182,8 +187,9 @@ def render_index() -> str:
 def items_to_html(items: list[dict[str, Any]]) -> str:
     """Render inventory list as an HTML table."""
 
+    row_template = "      <tr><td>{id}</td><td>{name}</td></tr>"
     rows = "\n".join(
-        f"      <tr><td>{item['id']}</td><td>{item['name']}</td></tr>" for item in items
+        row_template.format(id=item["id"], name=item["name"]) for item in items
     )
     return f"""<!doctype html>
 <html>
@@ -234,7 +240,11 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
     app.testing = testing
 
     if testing:
-        conn = sqlite3.connect("file:memdb1?mode=memory&cache=shared", uri=True, check_same_thread=False)
+        conn = sqlite3.connect(
+            "file:memdb1?mode=memory&cache=shared",
+            uri=True,
+            check_same_thread=False,
+        )
         conn.row_factory = sqlite3.Row
         init_sqlite_schema(conn)
         app.config["DB_ENGINE"] = "sqlite"
@@ -260,7 +270,11 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
                         cur.fetchone()
             return Response("OK", status=200, mimetype="text/plain")
         except Exception as exc:  # pylint: disable=broad-except
-            return Response(f"Database not ready: {exc}", status=500, mimetype="text/plain")
+            return Response(
+                f"Database not ready: {exc}",
+                status=500,
+                mimetype="text/plain",
+            )
 
     @app.get("/")
     def root() -> Response:
@@ -271,7 +285,10 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
         try:
             items = fetch_all(app, "SELECT id, name FROM items ORDER BY id")
         except Exception as exc:  # pylint: disable=broad-except
-            return jsonify({"error": "Database query failed", "details": str(exc)}), 500
+            return (
+                jsonify({"error": "Database query failed", "details": str(exc)}),
+                500,
+            )
 
         if wants_html():
             return Response(items_to_html(items), status=200, mimetype="text/html")
@@ -284,9 +301,15 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
         quantity = data.get("quantity")
 
         if not isinstance(name, str) or not name.strip():
-            return jsonify({"error": "Field 'name' must be a non-empty string"}), 400
+            return (
+                jsonify({"error": "Field 'name' must be a non-empty string"}),
+                400,
+            )
         if not isinstance(quantity, int):
-            return jsonify({"error": "Field 'quantity' must be an integer"}), 400
+            return (
+                jsonify({"error": "Field 'quantity' must be an integer"}),
+                400,
+            )
 
         try:
             if app.config["DB_ENGINE"] == "sqlite":
@@ -317,7 +340,10 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
                         created = dict(cur.fetchone())
                     conn.commit()
         except Exception as exc:  # pylint: disable=broad-except
-            return jsonify({"error": "Failed to create item", "details": str(exc)}), 500
+            return (
+                jsonify({"error": "Failed to create item", "details": str(exc)}),
+                500,
+            )
 
         if wants_html():
             return Response(item_to_html(created), status=201, mimetype="text/html")
@@ -332,7 +358,10 @@ def create_app(testing: bool = False, config: AppConfig | None = None) -> Flask:
                 (item_id,),
             )
         except Exception as exc:  # pylint: disable=broad-except
-            return jsonify({"error": "Database query failed", "details": str(exc)}), 500
+            return (
+                jsonify({"error": "Database query failed", "details": str(exc)}),
+                500,
+            )
 
         if row is None:
             return jsonify({"error": "Item not found"}), 404

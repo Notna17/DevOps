@@ -26,9 +26,13 @@ def load_database_config(path: str = CONFIG_PATH) -> dict[str, str | int]:
         with open(path, "rb") as config_file:
             raw = tomllib.load(config_file)
     except tomllib.TOMLDecodeError as exc:
-        raise RuntimeError(f"Invalid TOML in configuration file {path}: {exc}") from exc
+        raise RuntimeError(
+            f"Invalid TOML in configuration file {path}: {exc}"
+        ) from exc
     except OSError as exc:
-        raise RuntimeError(f"Could not read configuration file {path}: {exc}") from exc
+        raise RuntimeError(
+            f"Could not read configuration file {path}: {exc}"
+        ) from exc
 
     try:
         db = raw["database"]
@@ -40,7 +44,9 @@ def load_database_config(path: str = CONFIG_PATH) -> dict[str, str | int]:
             "password": str(db["password"]),
         }
     except (KeyError, TypeError, ValueError) as exc:
-        raise RuntimeError("Invalid [database] section in configuration.") from exc
+        raise RuntimeError(
+            "Invalid [database] section in configuration."
+        ) from exc
 
 
 def migrate() -> None:

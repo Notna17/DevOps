@@ -58,7 +58,10 @@ def test_get_item_by_id(client):
     assert create.status_code == 201
     item_id = create.json["id"]
 
-    response = client.get(f"/items/{item_id}", headers={"Accept": "application/json"})
+    response = client.get(
+        f"/items/{item_id}",
+        headers={"Accept": "application/json"},
+    )
     assert response.status_code == 200
     assert response.json["name"] == "Phone"
     assert response.json["quantity"] == 2
@@ -71,7 +74,10 @@ def test_get_items_html(client):
 
 
 def test_get_nonexistent_item_returns_404(client):
-    response = client.get("/items/99999", headers={"Accept": "application/json"})
+    response = client.get(
+        "/items/99999",
+        headers={"Accept": "application/json"},
+    )
     assert response.status_code == 404
 
 

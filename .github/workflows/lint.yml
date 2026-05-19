@@ -24,7 +24,7 @@ jobs:
           pip install flake8 mypy
       - name: Run flake8
         run: |
-          flake8 app/
+          flake8 app/ --config app/.flake8
       - name: Run mypy
         run: |
           mypy app/app.py app/migrate.py --ignore-missing-imports
@@ -39,10 +39,12 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: app/Dockerfile
+          config: .hadolint.yaml
       - name: Lint nginx Dockerfile
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: docker/nginx/Dockerfile
+          config: .hadolint.yaml
 
   lint-shell:
     name: lint-shell

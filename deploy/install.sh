@@ -74,7 +74,7 @@ chmod 0440 "${SUDOERS_OPERATOR}"
 visudo -cf "${SUDOERS_OPERATOR}"
 
 log_section "4) Configure PostgreSQL user, database, and localhost-only access"
-PG_MAIN_DIR="$(ls -d /etc/postgresql/*/main | head -n1)"
+PG_MAIN_DIR="$(find /etc/postgresql -maxdepth 2 -type d -name main | head -n1)"
 PG_CONF="${PG_MAIN_DIR}/postgresql.conf"
 PG_HBA="${PG_MAIN_DIR}/pg_hba.conf"
 
