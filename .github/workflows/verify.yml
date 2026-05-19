@@ -1,0 +1,21 @@
+name: Verify
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: verify
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install verification dependencies
+        run: |
+          pip install pytest testinfra requests
+      - name: Run verification tests
+        run: |
+          pytest deploy/verify/test_deployment.py \
+            --target-ip=${{ secrets.TARGET_NODE_IP }} \
+            -v

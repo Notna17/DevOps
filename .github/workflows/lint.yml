@@ -1,0 +1,68 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-python:
+    name: lint-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python linters
+        run: |
+          pip install flake8 mypy
+      - name: Run flake8
+        run: |
+          flake8 app/
+      - name: Run mypy
+        run: |
+          mypy app/app.py app/migrate.py --ignore-missing-imports
+
+  lint-docker:
+    name: lint-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Lint app Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: app/Dockerfile
+      - name: Lint nginx Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: docker/nginx/Dockerfile
+
+  lint-shell:
+    name: lint-shell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          find . -name "*.sh" -not -path "./.git/*" | xargs shellcheck
+
+  lint-yaml:
+    name: lint-yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install yamllint
+        run: |
+          pip install yamllint
+      - name: Run yamllint
+        run: |
+          yamllint .github/workflows/ docker-compose.yml

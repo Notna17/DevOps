@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: self-hosted
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set image variables
+        run: |
+          echo "IMAGE_TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "IMAGE=ghcr.io/${{ github.repository }}/mywebapp:${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Copy docker-compose and config to target node
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i ${{ secrets.DEPLOY_SSH_KEY_PATH }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.TARGET_NODE_IP }} \
+            "mkdir -p ~/mywebapp/docker/config ~/mywebapp/docker/nginx"
+          scp -o StrictHostKeyChecking=no \
+            -i ${{ secrets.DEPLOY_SSH_KEY_PATH }} \
+            docker-compose.yml \
+            docker/nginx/nginx-mywebapp.conf \
+            docker/nginx/Dockerfile \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.TARGET_NODE_IP }}:~/mywebapp/
+          scp -o StrictHostKeyChecking=no \
+            -i ${{ secrets.DEPLOY_SSH_KEY_PATH }} \
+            docker/config/config.toml \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.TARGET_NODE_IP }}:~/mywebapp/docker/config/
+      - name: Deploy new version
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i ${{ secrets.DEPLOY_SSH_KEY_PATH }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.TARGET_NODE_IP }} \
+            "cd ~/mywebapp && \
+             echo '${{ secrets.GHCR_TOKEN }}' | \
+               docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
+             IMAGE_TAG=${{ env.IMAGE_TAG }} docker compose pull app && \
+             IMAGE_TAG=${{ env.IMAGE_TAG }} docker compose up -d --no-build && \
+             docker compose ps"
+
+  verify:
+    name: verify
+    needs: deploy
+    uses: ./.github/workflows/verify.yml

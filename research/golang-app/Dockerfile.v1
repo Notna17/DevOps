@@ -1,9 +1,14 @@
+# Base image with Go toolchain.
 FROM golang:1.21-bookworm
 
+# Set working directory.
 WORKDIR /app
 
+# Copy all source files.
 COPY . /app
 
+# Build the application binary.
 RUN go build -o app .
 
+# Run the compiled binary.
 ENTRYPOINT ["/app/app"]
