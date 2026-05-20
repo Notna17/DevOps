@@ -1,0 +1,17 @@
+[Unit]
+Description=mywebapp Flask inventory service
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_dir }}/app
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre={{ app_virtualenv }}/bin/python {{ app_dir }}/app/migrate.py
+ExecStart={{ app_virtualenv }}/bin/python {{ app_dir }}/app/app.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

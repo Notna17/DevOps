@@ -1,0 +1,10 @@
+[Unit]
+Description=mywebapp socket activation listener
+PartOf=mywebapp.service
+
+[Socket]
+ListenStream={{ app_listen_host }}:{{ app_listen_port }}
+NoDelay=true
+
+[Install]
+WantedBy=sockets.target

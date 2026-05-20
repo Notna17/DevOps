@@ -1,0 +1,55 @@
+upstream app_backend {
+    server {{ app_backend_host }}:{{ app_backend_port }};
+}
+
+server {
+    listen {{ nginx_listen_port }};
+    server_name {{ nginx_server_name }};
+
+    access_log /var/log/nginx/mywebapp_access.log;
+    error_log /var/log/nginx/mywebapp_error.log;
+
+    location ^~ /health/ {
+        return 404;
+    }
+
+    location = / {
+        if ($request_method != GET) {
+            return 404;
+        }
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://app_backend;
+    }
+
+    location = /items {
+        if ($request_method !~ ^(GET|POST)$) {
+            return 404;
+        }
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://app_backend;
+    }
+
+    location ~ ^/items/[0-9]+$ {
+        if ($request_method != GET) {
+            return 404;
+        }
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://app_backend;
+    }
+
+    location / {
+        return 404;
+    }
+}

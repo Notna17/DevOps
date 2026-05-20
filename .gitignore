@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .env
 lab3-steps.md
+lab4-steps.md
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*

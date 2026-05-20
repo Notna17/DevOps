@@ -1,0 +1,62 @@
+- name: Install PostgreSQL packages
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+    state: present
+
+- name: Locate PostgreSQL config directory
+  ansible.builtin.find:
+    paths: /etc/postgresql
+    patterns: postgresql.conf
+    recurse: true
+  register: postgres_conf
+
+- name: Set PostgreSQL config facts
+  ansible.builtin.set_fact:
+    postgres_conf_path: "{{ postgres_conf.files[0].path }}"
+    postgres_conf_dir: "{{ postgres_conf.files[0].path | dirname }}"
+
+- name: Deploy postgresql.conf
+  ansible.builtin.template:
+    src: postgresql.conf.j2
+    dest: "{{ postgres_conf_path }}"
+    mode: "0644"
+  notify: Restart PostgreSQL
+
+- name: Deploy pg_hba.conf
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgres_conf_dir }}/pg_hba.conf"
+    mode: "0644"
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL is running
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Check for PostgreSQL role
+  ansible.builtin.command: "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='{{ postgres_user }}'\""
+  register: postgres_role
+  changed_when: false
+  failed_when: false
+
+- name: Create PostgreSQL role
+  ansible.builtin.command: "sudo -u postgres psql -c \"CREATE ROLE {{ postgres_user }} WITH LOGIN PASSWORD '{{ postgres_password }}';\""
+  when: postgres_role.stdout.strip() != "1"
+
+- name: Check for PostgreSQL database
+  ansible.builtin.command: "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_database WHERE datname='{{ postgres_db }}'\""
+  register: postgres_db_exists
+  changed_when: false
+  failed_when: false
+
+- name: Create PostgreSQL database
+  ansible.builtin.command: "sudo -u postgres psql -c \"CREATE DATABASE {{ postgres_db }} OWNER {{ postgres_user }};\""
+  when: postgres_db_exists.stdout.strip() != "1"
+
+- name: Allow PostgreSQL from app network
+  ansible.builtin.command: "ufw allow from {{ app_backend_host }} to any port {{ postgres_port }} proto tcp"
+  changed_when: true
