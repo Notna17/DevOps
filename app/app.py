@@ -16,9 +16,11 @@ from psycopg2.extras import RealDictCursor
 from werkzeug.serving import make_server
 
 try:
-    import tomllib  # Python 3.11+
+    import tomllib as tomllib_module  # Python 3.11+
 except ModuleNotFoundError:  # pragma: no cover - Ubuntu 22.04 uses Python 3.10
-    import tomli as tomllib  # type: ignore
+    import tomli as tomllib_module
+
+tomllib = tomllib_module
 
 CONFIG_PATH = "/etc/mywebapp/config.toml"
 
