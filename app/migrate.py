@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 import os
+import importlib
 import sys
 
 import psycopg2
 
-try:
-    import tomllib as tomllib_module
-except ModuleNotFoundError:
-    import tomli as tomllib_module
-
-tomllib = tomllib_module
+tomllib = (
+    importlib.import_module("tomllib")
+    if sys.version_info >= (3, 11)
+    else importlib.import_module("tomli")
+)
 
 CONFIG_PATH = "/etc/mywebapp/config.toml"
 
