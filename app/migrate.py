@@ -9,9 +9,9 @@ import sys
 import psycopg2
 
 try:
-    import tomllib  
+    import tomllib
 except ModuleNotFoundError: 
-    import tomli as tomllib  
+    import tomli as tomllib
 
 CONFIG_PATH = "/etc/mywebapp/config.toml"
 
