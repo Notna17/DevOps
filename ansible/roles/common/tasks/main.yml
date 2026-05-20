@@ -1,0 +1,28 @@
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-venv
+      - python3-pip
+      - git
+      - curl
+      - ufw
+    state: present
+
+- name: Set UFW defaults
+  ansible.builtin.command: "{{ item }}"
+  loop:
+    - ufw --force reset
+    - ufw default deny incoming
+    - ufw default allow outgoing
+    - ufw allow OpenSSH
+  changed_when: true
+
+- name: Enable UFW
+  ansible.builtin.command: ufw --force enable
+  changed_when: true

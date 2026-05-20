@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import importlib
 import socket
 import sqlite3
 import sys
@@ -15,10 +16,11 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.serving import make_server
 
-try:
-    import tomllib  # Python 3.11+
-except ModuleNotFoundError:  # pragma: no cover - Ubuntu 22.04 uses Python 3.10
-    import tomli as tomllib  # type: ignore
+tomllib = (
+    importlib.import_module("tomllib")
+    if sys.version_info >= (3, 11)
+    else importlib.import_module("tomli")
+)
 
 CONFIG_PATH = "/etc/mywebapp/config.toml"
 

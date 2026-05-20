@@ -1,0 +1,38 @@
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Deploy nginx site config
+  ansible.builtin.template:
+    src: nginx-mywebapp.conf.j2
+    dest: /etc/nginx/sites-available/mywebapp
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Enable nginx site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/mywebapp
+    dest: /etc/nginx/sites-enabled/mywebapp
+    state: link
+    force: true
+
+- name: Disable default nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Validate nginx config
+  ansible.builtin.command: nginx -t
+  changed_when: false
+  notify: Reload nginx
+
+- name: Ensure nginx is running
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Allow HTTP access
+  ansible.builtin.command: "ufw allow {{ nginx_listen_port }}/tcp"
+  changed_when: true

@@ -1,0 +1,42 @@
+app_repo: "https://github.com/Notna17/DevOps.git"
+app_repo_ref: "main"
+app_user: "app"
+app_dir: "/opt/mywebapp"
+app_config_dir: "/etc/mywebapp"
+app_virtualenv: "/opt/mywebapp/venv"
+app_service_name: "mywebapp"
+
+app_listen_host: "0.0.0.0"
+app_listen_port: 8080
+
+db_host: "192.168.56.10"
+
+app_backend_host: "192.168.56.11"
+app_backend_port: 8080
+
+nginx_host: "192.168.56.12"
+
+nginx_listen_port: 80
+nginx_server_name: "_"
+
+postgres_listen_address: "0.0.0.0"
+app_network_cidr: "192.168.56.0/24"
+
+postgres_db: "mywebapp"
+postgres_user: "mywebapp"
+postgres_password: "mywebapp_password"
+postgres_port: 5432
+
+student_password_hash: "$6$vWy2BS8HmF0azmNm$MOTdWRnE/rJJWzBSp9nAjEHYs5EBe9J6lJpDh7RxYFi9EXdfHv5T.n8cuetytdSaC4MQkTnfSV0p0clUO9vwA."
+teacher_password_hash: "$6$vWy2BS8HmF0azmNm$MOTdWRnE/rJJWzBSp9nAjEHYs5EBe9J6lJpDh7RxYFi9EXdfHv5T.n8cuetytdSaC4MQkTnfSV0p0clUO9vwA."
+operator_password_hash: "$6$vWy2BS8HmF0azmNm$MOTdWRnE/rJJWzBSp9nAjEHYs5EBe9J6lJpDh7RxYFi9EXdfHv5T.n8cuetytdSaC4MQkTnfSV0p0clUO9vwA."
+
+lab_users:
+  - name: "student"
+    password_hash: "{{ student_password_hash }}"
+    groups: ["sudo"]
+  - name: "teacher"
+    password_hash: "{{ teacher_password_hash }}"
+    groups: ["sudo"]
+  - name: "operator"
+    password_hash: "{{ operator_password_hash }}"

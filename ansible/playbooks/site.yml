@@ -1,0 +1,24 @@
+- name: Baseline configuration
+  hosts: all
+  become: true
+  roles:
+    - common
+    - users
+
+- name: Database node
+  hosts: db
+  become: true
+  roles:
+    - db
+
+- name: Application node
+  hosts: app
+  become: true
+  roles:
+    - app
+
+- name: Nginx node
+  hosts: nginx
+  become: true
+  roles:
+    - nginx

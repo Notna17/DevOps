@@ -1,0 +1,29 @@
+- name: Ensure lab users exist
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    password: "{{ item.password_hash }}"
+    groups: "{{ item.groups | default(omit) }}"
+    append: true
+    shell: /bin/bash
+    update_password: always
+    state: present
+  loop: "{{ lab_users }}"
+
+- name: Force password change at first login
+  ansible.builtin.command: "chage -d 0 {{ item.name }}"
+  loop: "{{ lab_users }}"
+  changed_when: false
+
+- name: Remove operator from sudo group
+  ansible.builtin.command: gpasswd -d operator sudo
+  register: operator_sudo
+  changed_when: operator_sudo.rc == 0
+  failed_when: false
+
+- name: Configure operator sudo permissions
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/operator
+    mode: "0440"
+    content: |
+      # Purpose: Restrict operator to limited service management commands without password.
+      operator ALL=(root) NOPASSWD: /bin/systemctl start mywebapp, /bin/systemctl stop mywebapp, /bin/systemctl restart mywebapp, /bin/systemctl status mywebapp, /bin/systemctl reload nginx
