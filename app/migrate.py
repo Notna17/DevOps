@@ -9,9 +9,9 @@ import sys
 import psycopg2
 
 try:
-    import tomllib  # Python 3.11+
-except ModuleNotFoundError:  # pragma: no cover - Ubuntu 22.04 uses Python 3.10
-    import tomli as tomllib  # type: ignore
+    import tomllib  
+except ModuleNotFoundError: 
+    import tomli as tomllib  
 
 CONFIG_PATH = "/etc/mywebapp/config.toml"
 

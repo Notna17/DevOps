@@ -33,12 +33,6 @@
 - `student_password_hash`, `teacher_password_hash`, `operator_password_hash` - SHA-512 хеші
 - `db_host`, `app_backend_host`, `nginx_host` - IP адреси VM
 
-## Генерація SHA-512 хешів
-
-```bash
-python3 -c "import crypt; print(crypt.crypt('12345678', crypt.mksalt(crypt.METHOD_SHA512)))"
-```
-
 ## Запуск
 
 1) Terraform
